@@ -5,8 +5,32 @@ void main() {
 }
 
 // Main App
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  int quantity = 5;
+  final int maxQuantity = 10;
+
+  void _addQuantity() {
+    if (quantity < maxQuantity) {
+      setState(() {
+        quantity++;
+      });
+    }
+  }
+
+  void _removeQuantity() {
+    if (quantity > 0) {
+      setState(() {
+        quantity--;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,22 +38,30 @@ class App extends StatelessWidget {
       title: 'Sandwich Shop App',
       home: Scaffold(
         appBar: AppBar(title: const Text('Sandwich Counter')),
-        body: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              StyledButton(
-                text: 'Add',
-                onPressed: () {
-                  // Add button logic here
-                },
+              Text(
+                '$quantity footlong sandwich(es)',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              StyledButton(
-                text: 'Remove',
-                onPressed: () {
-                  // Remove button logic here
-                },
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StyledButton(
+                    text: '+ Add',
+                    isEnabled: quantity < maxQuantity,
+                    onPressed: _addQuantity,
+                  ),
+                  const SizedBox(width: 16),
+                  StyledButton(
+                    text: '- Remove',
+                    isEnabled: quantity > 0,
+                    onPressed: _removeQuantity,
+                  ),
+                ],
               ),
             ],
           ),
@@ -42,19 +74,21 @@ class App extends StatelessWidget {
 class StyledButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final bool isEnabled;
 
   const StyledButton({
     required this.text,
     required this.onPressed,
+    this.isEnabled = true,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: isEnabled ? onPressed : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
+        backgroundColor: isEnabled ? Colors.red : Colors.grey,
         foregroundColor: Colors.white,
       ),
       child: Text(text),
