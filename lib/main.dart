@@ -15,6 +15,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   int quantity = 5;
   final int maxQuantity = 10;
+  String selectedSandwichType = 'Footlong';
 
   void _addQuantity() {
     if (quantity < maxQuantity) {
@@ -43,8 +44,21 @@ class _AppState extends State<App> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$quantity footlong sandwich(es)',
+                '$quantity $selectedSandwichType sandwich(es)',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'Footlong', label: Text('Footlong')),
+                  ButtonSegment(value: 'Six-inch', label: Text('Six-inch')),
+                ],
+                selected: {selectedSandwichType},
+                onSelectionChanged: (newSelection) {
+                  setState(() {
+                    selectedSandwichType = newSelection.first;
+                  });
+                },
               ),
               const SizedBox(height: 16),
               Row(
