@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'repositories/pricing_repository.dart';
 
 void main() {
   runApp(const App());
@@ -16,6 +17,8 @@ class _AppState extends State<App> {
   int quantity = 5;
   final int maxQuantity = 10;
   String selectedSandwichType = 'Footlong';
+  bool _isToasted = false; // New state variable
+  final PricingRepository pricingRepository = PricingRepository();
 
   void _addQuantity() {
     if (quantity < maxQuantity) {
@@ -59,6 +62,26 @@ class _AppState extends State<App> {
                     selectedSandwichType = newSelection.first;
                   });
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('untoasted', style: TextStyle(fontSize: 16)),
+                  Switch(
+                    key: const Key('toastedSwitch'), // Unique key for the toasted switch
+                    value: _isToasted,
+                    onChanged: (value) {
+                      setState(() => _isToasted = value);
+                    },
+                  ),
+                  const Text('toasted', style: TextStyle(fontSize: 16)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Total Price: £${pricingRepository.calculateTotalPrice(selectedSandwichType, quantity).toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Row(
