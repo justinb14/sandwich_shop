@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:sandwich_shop/main.dart';
+import 'package:sandwich_shop/main.dart'; 
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('SegmentedButton toggles between Footlong and Six-inch',
+      (WidgetTester tester) async {
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Build the widget
+    await tester.pumpWidget(const App());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // --- Initial state check ---
+    expect(find.text('5 Footlong sandwich(es)'), findsOneWidget);
+    expect(find.text('5 Six-inch sandwich(es)'), findsNothing);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // --- Tap the Six-inch button ---
+    await tester.tap(find.text('Six-inch'));
+    await tester.pumpAndSettle();
+
+    // Should now show Six-inch
+    expect(find.text('5 Six-inch sandwich(es)'), findsOneWidget);
+    expect(find.text('5 Footlong sandwich(es)'), findsNothing);
+
+    // --- Tap back to Footlong ---
+    await tester.tap(find.text('Footlong'));
+    await tester.pumpAndSettle();
+
+    // Should now show Footlong again
+    expect(find.text('5 Footlong sandwich(es)'), findsOneWidget);
+    expect(find.text('5 Six-inch sandwich(es)'), findsNothing);
   });
 }
+//All tests passed "00:10 +1: All tests passed!""
