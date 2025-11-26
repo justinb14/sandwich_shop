@@ -25,6 +25,7 @@ The Sandwich Shop App is a simple Flutter application that allows users to manag
 - **Quantity Adjustment**: Add or remove sandwiches with buttons, ensuring the quantity stays within the range of 0 to 10.
 - **Dynamic UI**: The app dynamically updates the displayed sandwich type and quantity based on user interaction.
 - **Styled Buttons**: Buttons are styled to indicate whether they are enabled or disabled based on the current quantity.
+- **Pricing Repisitory + Toasted or untoasted switch**: New switches to choose between toasted or untoasted has been added, as well as a pricing repository to calculate the price accordingly (£7 for six inch, £11 for foot long)
 
 ## Project Structure
 

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'repositories/pricing_repository.dart';
 
+// Add a top-level ScaffoldMessenger key so SnackBars can be shown from AppState
+final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 void main() {
   runApp(const App());
 }
@@ -20,11 +24,22 @@ class _AppState extends State<App> {
   bool _isToasted = false; // New state variable
   final PricingRepository pricingRepository = PricingRepository();
 
+  // New cart state
+  int cartItems = 0;
+  double cartTotal = 0.0;
+
   void _addQuantity() {
     if (quantity < maxQuantity) {
+      // update quantity and cart in one setState so UI updates together
       setState(() {
         quantity++;
+        cartItems++;
+        // add the unit price for the current sandwich type
+        cartTotal += pricingRepository.calculateTotalPrice(selectedSandwichType, 1);
       });
+      // show a transient confirmation message in the UI
+      final message = 'Added 1 $selectedSandwichType sandwich. Quantity: $quantity';
+      _showConfirmation(message);
     }
   }
 
@@ -36,9 +51,21 @@ class _AppState extends State<App> {
     }
   }
 
+  // Update to use the top-level ScaffoldMessenger key
+  void _showConfirmation(String message) {
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(message, key: const Key('confirmationMessage')),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // attach the scaffoldMessengerKey so SnackBars can be shown from AppState
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       title: 'Sandwich Shop App',
       home: Scaffold(
         appBar: AppBar(title: const Text('Sandwich Counter')),
@@ -83,6 +110,15 @@ class _AppState extends State<App> {
                 'Total Price: £${pricingRepository.calculateTotalPrice(selectedSandwichType, quantity).toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
+
+              const SizedBox(height: 12),
+              // Permanent cart summary (updates when items are added)
+              Text(
+                'Cart: $cartItems items - Total: £${cartTotal.toStringAsFixed(2)}',
+                key: const Key('cartSummary'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
