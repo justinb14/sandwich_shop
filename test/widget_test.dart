@@ -48,5 +48,30 @@ void main() {
     final expected = 'Cart: 1 items - Total: £${unitPrice.toStringAsFixed(2)}';
     expect(find.text(expected), findsOneWidget);
   });
+
+  testWidgets('cart summary updates when add pressed and then remove pressed', (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+
+    // initial cart summary should be zero
+    expect(find.byKey(const Key('cartSummary')), findsOneWidget);
+    expect(find.text('Cart: 0 items - Total: £0.00'), findsOneWidget);
+
+    // compute expected unit price for the default sandwich type
+    final unitPrice = PricingRepository().calculateTotalPrice('Footlong', 1);
+
+    // tap the '+ Add' button
+    await tester.tap(find.text('+ Add'));
+    await tester.pumpAndSettle();
+
+    final expectedAfterAdd = 'Cart: 1 items - Total: £${unitPrice.toStringAsFixed(2)}';
+    expect(find.text(expectedAfterAdd), findsOneWidget);
+
+    // tap the '- Remove' button to remove the item from the cart
+    await tester.tap(find.text('- Remove'));
+    await tester.pumpAndSettle();
+
+    // cart should be back to zero
+    expect(find.text('Cart: 0 items - Total: £0.00'), findsOneWidget);
+  });
 }
 //All tests passed "00:10 +1: All tests passed!""

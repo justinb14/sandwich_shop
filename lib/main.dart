@@ -18,35 +18,45 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  int quantity = 5;
   final int maxQuantity = 10;
   String selectedSandwichType = 'Footlong';
   bool _isToasted = false; // New state variable
   final PricingRepository pricingRepository = PricingRepository();
 
-  // New cart state
-  int cartItems = 0;
-  double cartTotal = 0.0;
+  // Replace simple counters with per-type cart map
+  final Map<String, int> _cart = {};
+
+  // helper getters
+  int _cartItemsCount() => _cart.values.fold(0, (a, b) => a + b);
+  double _cartTotal() => _cart.entries.fold(
+      0.0, (sum, e) => sum + pricingRepository.calculateTotalPrice(e.key, e.value));
 
   void _addQuantity() {
-    if (quantity < maxQuantity) {
-      // update quantity and cart in one setState so UI updates together
+    if (_cart[selectedSandwichType] == null || _cart[selectedSandwichType]! < maxQuantity) {
       setState(() {
-        quantity++;
-        cartItems++;
-        // add the unit price for the current sandwich type
-        cartTotal += pricingRepository.calculateTotalPrice(selectedSandwichType, 1);
+        // increment cart for the selected type
+        _cart[selectedSandwichType] = (_cart[selectedSandwichType] ?? 0) + 1;
       });
       // show a transient confirmation message in the UI
-      final message = 'Added 1 $selectedSandwichType sandwich. Quantity: $quantity';
+      final message = 'Added 1 $selectedSandwichType sandwich.';
       _showConfirmation(message);
     }
   }
 
   void _removeQuantity() {
-    if (quantity > 0) {
+    if (_cartItemsCount() > 0) {
       setState(() {
-        quantity--;
+        // try to remove one item from the cart if available
+        // prefer to remove from the selected type if present
+        if ((_cart[selectedSandwichType] ?? 0) > 0) {
+          _cart[selectedSandwichType] = _cart[selectedSandwichType]! - 1;
+          if (_cart[selectedSandwichType] == 0) _cart.remove(selectedSandwichType);
+        } else {
+          // otherwise remove from any available type (first found)
+          final key = _cart.keys.first;
+          _cart[key] = _cart[key]! - 1;
+          if (_cart[key] == 0) _cart.remove(key);
+        }
       });
     }
   }
@@ -74,7 +84,7 @@ class _AppState extends State<App> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$quantity $selectedSandwichType sandwich(es)',
+                '${_cart[selectedSandwichType] ?? 0} $selectedSandwichType sandwich(es)',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -107,14 +117,14 @@ class _AppState extends State<App> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Total Price: £${pricingRepository.calculateTotalPrice(selectedSandwichType, quantity).toStringAsFixed(2)}',
+                'Total Price: £${pricingRepository.calculateTotalPrice(selectedSandwichType, _cart[selectedSandwichType] ?? 0).toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 12),
-              // Permanent cart summary (updates when items are added)
+              // Permanent cart summary (updates when items are added/removed)
               Text(
-                'Cart: $cartItems items - Total: £${cartTotal.toStringAsFixed(2)}',
+                'Cart: ${_cartItemsCount()} items - Total: £${_cartTotal().toStringAsFixed(2)}',
                 key: const Key('cartSummary'),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -125,13 +135,13 @@ class _AppState extends State<App> {
                 children: [
                   StyledButton(
                     text: '+ Add',
-                    isEnabled: quantity < maxQuantity,
+                    isEnabled: (_cart[selectedSandwichType] == null || _cart[selectedSandwichType]! < maxQuantity),
                     onPressed: _addQuantity,
                   ),
                   const SizedBox(width: 16),
                   StyledButton(
                     text: '- Remove',
-                    isEnabled: quantity > 0,
+                    isEnabled: _cartItemsCount() > 0,
                     onPressed: _removeQuantity,
                   ),
                 ],
