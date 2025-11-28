@@ -36,6 +36,8 @@ class Sandwich {
   String get image {
     String typeString = type.name;
     String sizeString = isFootlong ? 'footlong' : 'six_inch';
-    return 'assets/images/${typeString}_$sizeString.png';
+    // Return path without leading 'assets/' so Flutter web resolves to
+    // 'assets/images/...' at runtime (avoids 'assets/assets/...' requests).
+    return 'images/${typeString}_$sizeString.png';
   }
 }

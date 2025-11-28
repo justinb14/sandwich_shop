@@ -40,6 +40,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
   bool _isFootlong = true;
+  bool _isToasted = false;
   BreadType _selectedBreadType = BreadType.white;
   int _quantity = 1;
 
@@ -63,7 +64,7 @@ class _OrderScreenState extends State<OrderScreen> {
         type: _selectedSandwichType,
         isFootlong: _isFootlong,
         breadType: _selectedBreadType,
-        isToasted: false,
+        isToasted: _isToasted,
       );
 
       setState(() {
@@ -231,15 +232,31 @@ class _OrderScreenState extends State<OrderScreen> {
                   dropdownMenuEntries: _buildSandwichTypeEntries(),
                 ),
                 const SizedBox(height: 20),
+                // Size selector as segmented control (Six-inch / Footlong)
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'Six-inch', label: Text('Six-inch')),
+                    ButtonSegment(value: 'Footlong', label: Text('Footlong')),
+                  ],
+                  selected: {_isFootlong ? 'Footlong' : 'Six-inch'},
+                  onSelectionChanged: (newSelection) {
+                    setState(() {
+                      _isFootlong = newSelection.first == 'Footlong';
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                // Toasted toggle (on/off switch)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Six-inch', style: TextStyle(fontSize: 16)),
+                    const Text('untoasted', style: TextStyle(fontSize: 16)),
                     Switch(
-                      value: _isFootlong,
-                      onChanged: _onSizeChanged,
+                      key: const Key('toastedSwitch'),
+                      value: _isToasted,
+                      onChanged: (value) => setState(() => _isToasted = value),
                     ),
-                    const Text('Footlong', style: TextStyle(fontSize: 16)),
+                    const Text('toasted', style: TextStyle(fontSize: 16)),
                   ],
                 ),
                 const SizedBox(height: 20),

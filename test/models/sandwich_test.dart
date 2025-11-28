@@ -10,7 +10,7 @@ void main() {
       isToasted: false,
     );
     expect(s.name, 'Veggie Delight');
-    expect(s.image, 'assets/images/veggieDelight_footlong.png');
+    expect(s.image, 'images/veggieDelight_footlong.png');
   });
 
   test('Sandwich name and image for six-inch tuna', () {
@@ -21,6 +21,6 @@ void main() {
       isToasted: false,
     );
     expect(s.name, 'Tuna Melt');
-    expect(s.image, 'assets/images/tunaMelt_six_inch.png');
+    expect(s.image, 'images/tunaMelt_six_inch.png');
   });
 }
