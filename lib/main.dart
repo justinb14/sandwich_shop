@@ -215,7 +215,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       return const Center(
                         child: Text(
                           'Image not found',
-                          style: normalText,
+                          style: TextStyle(fontSize: 16),
                         ),
                       );
                     },
@@ -225,7 +225,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 DropdownMenu<SandwichType>(
                   width: double.infinity,
                   label: const Text('Sandwich Type'),
-                  textStyle: normalText,
+                  textStyle: const TextStyle(fontSize: 16),
                   initialSelection: _selectedSandwichType,
                   onSelected: _onSandwichTypeChanged,
                   dropdownMenuEntries: _buildSandwichTypeEntries(),
@@ -234,19 +234,19 @@ class _OrderScreenState extends State<OrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Six-inch', style: normalText),
+                    const Text('Six-inch', style: TextStyle(fontSize: 16)),
                     Switch(
                       value: _isFootlong,
                       onChanged: _onSizeChanged,
                     ),
-                    const Text('Footlong', style: normalText),
+                    const Text('Footlong', style: TextStyle(fontSize: 16)),
                   ],
                 ),
                 const SizedBox(height: 20),
                 DropdownMenu<BreadType>(
                   width: double.infinity,
                   label: const Text('Bread Type'),
-                  textStyle: normalText,
+                  textStyle: const TextStyle(fontSize: 16),
                   initialSelection: _selectedBreadType,
                   onSelected: _onBreadTypeChanged,
                   dropdownMenuEntries: _buildBreadTypeEntries(),
@@ -255,13 +255,13 @@ class _OrderScreenState extends State<OrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Quantity: ', style: normalText),
+                    const Text('Quantity: ', style: TextStyle(fontSize: 16)),
                     IconButton(
                       key: const Key('qtyDecrease'),
                       onPressed: _getDecreaseCallback(),
                       icon: const Icon(Icons.remove),
                     ),
-                    Text('$_quantity', style: heading2),
+                    Text('$_quantity', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     IconButton(
                       key: const Key('qtyIncrease'),
                       onPressed: _increaseQuantity,
@@ -380,7 +380,8 @@ class CartPage extends StatelessWidget {
                           Text('${sandwich.name} ($sizeLabel, $toastState) x $count'),
                           Text('£${price.toStringAsFixed(2)}'),
                         ],
-                      );
+                      ),
+                    );
                   }).toList(),
                 ),
               ),
