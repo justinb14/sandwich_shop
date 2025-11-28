@@ -57,7 +57,15 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/images/logo.png
+    - assets/images/veggie_delight_six_inch.png
+    - assets/images/veggie_delight_footlong.png
+    - assets/images/chicken_terayaki_footlong.png
+    - assets/images/Chicken_terayaki_six_inch.png
+    - assets/images/meatball_six_inch.png
+    - assets/images/Meatball_footlong.png
+    - assets/images/tuna_melt_six_inch.png
+    - assets/images/Tuna_melt_footlong.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
