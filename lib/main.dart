@@ -101,7 +101,17 @@ class _AppState extends State<App> {
       navigatorKey: _navigatorKey,
       title: 'Sandwich Shop App',
       home: Scaffold(
-        appBar: AppBar(title: const Text('Sandwich Counter')),
+        appBar: AppBar(
+          leading: SizedBox(
+            width: 48,
+            height: 48,
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+            ),
+          ),
+          title: const Text('Sandwich Counter'),
+        ),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
