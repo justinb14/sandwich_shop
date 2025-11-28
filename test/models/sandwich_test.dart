@@ -7,6 +7,7 @@ void main() {
       type: SandwichType.veggieDelight,
       isFootlong: true,
       breadType: BreadType.wheat,
+      isToasted: false,
     );
     expect(s.name, 'Veggie Delight');
     expect(s.image, 'assets/images/veggieDelight_footlong.png');
@@ -17,6 +18,7 @@ void main() {
       type: SandwichType.tunaMelt,
       isFootlong: false,
       breadType: BreadType.white,
+      isToasted: false,
     );
     expect(s.name, 'Tuna Melt');
     expect(s.image, 'assets/images/tunaMelt_six_inch.png');

@@ -13,12 +13,14 @@ void main() {
       type: SandwichType.veggieDelight,
       isFootlong: true,
       breadType: BreadType.wheat,
+      isToasted: false,
     );
 
     final sixInchTuna = Sandwich(
       type: SandwichType.tunaMelt,
       isFootlong: false,
       breadType: BreadType.white,
+      isToasted: false,
     );
 
     // add one footlong veggie and two six-inch tuna
@@ -30,7 +32,7 @@ void main() {
     final expected = repo.calculateTotalPrice('Footlong', 1) +
         repo.calculateTotalPrice('Six-inch', 2);
 
-    expect(cart.totalPrice(repo), closeTo(expected, 0.001));
+    expect(cart.totalPrice(), closeTo(expected, 0.001));
 
     final items = cart.getItems();
     expect(items[footlongVeggie], 1);
@@ -44,6 +46,7 @@ void main() {
       type: SandwichType.veggieDelight,
       isFootlong: true,
       breadType: BreadType.wheat,
+      isToasted: false,
     );
 
     // add two then remove one
@@ -55,11 +58,11 @@ void main() {
     expect(cart.getItems()[footlongVeggie], 1);
 
     final expected = repo.calculateTotalPrice('Footlong', 1);
-    expect(cart.totalPrice(repo), closeTo(expected, 0.001));
+    expect(cart.totalPrice(), closeTo(expected, 0.001));
 
     // remove remaining
     cart.remove(footlongVeggie);
     expect(cart.isEmpty, isTrue);
-    expect(cart.totalPrice(repo), closeTo(0.0, 0.001));
+    expect(cart.totalPrice(), closeTo(0.0, 0.001));
   });
 }

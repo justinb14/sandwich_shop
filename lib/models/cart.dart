@@ -7,7 +7,7 @@ class Cart {
   final Map<String, Sandwich> _lookup = {};
 
   String _keyFor(Sandwich s) =>
-      '${s.type.name}_${s.isFootlong ? 'footlong' : 'six_inch'}_${s.breadType.name}';
+      '${s.type.name}_${s.isFootlong ? 'footlong' : 'six_inch'}_${s.breadType.name}_${s.isToasted ? 'toasted' : 'untoasted'}';
 
   void add(Sandwich sandwich, [int quantity = 1]) {
     if (quantity <= 0) return;
@@ -48,16 +48,27 @@ class Cart {
     return result;
   }
 
-  // Compute total price using PricingRepository (maps sandwich size to repository input)
-  double totalPrice(PricingRepository pricingRepository) {
+  // compute total price using PricingRepository internally
+  double totalPrice() {
+    final repo = PricingRepository();
     double sum = 0.0;
     _items.forEach((k, qty) {
       final sandwich = _lookup[k];
       if (sandwich == null) return;
       final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
-      sum += pricingRepository.calculateTotalPrice(sizeLabel, qty);
+      sum += repo.calculateTotalPrice(sizeLabel, qty);
     });
     return sum;
+  }
+
+  // New: return total price for a specific Sandwich entry (for display in UI)
+  double itemTotal(Sandwich sandwich) {
+    final key = _keyFor(sandwich);
+    final qty = _items[key] ?? 0;
+    if (qty == 0) return 0.0;
+    final repo = PricingRepository();
+    final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
+    return repo.calculateTotalPrice(sizeLabel, qty);
   }
 
   bool get isEmpty => _items.isEmpty;

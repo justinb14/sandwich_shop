@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 
-// Add top-level keys so SnackBars and navigation can be used from AppState
+// top-level scaffold & navigator keys (used for SnackBar/navigation elsewhere if needed)
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -13,178 +12,282 @@ void main() {
   runApp(const App());
 }
 
-// Main App
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
 
   @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  final int maxQuantity = 10;
-  String selectedSandwichType = 'Footlong';
-  bool _isToasted = false;
-  final PricingRepository pricingRepository = PricingRepository();
-
-  // cart map now tracks per-type and per-toast state counts
-  // structure: { "Footlong": { "toasted": 2, "untoasted": 1 }, "Six-inch": {...} }
-  final Map<String, Map<String, int>> _cart = {};
-
-  // helper getters
-  int _cartItemsCount() => _cart.values.fold(0, (a, m) => a + (m.values.fold(0, (x, y) => x + y)));
-  double _cartTotal() => _cart.entries.fold<double>(0.0, (double sum, MapEntry<String, Map<String, int>> e) {
-        final type = e.key;
-        final innerTotal = e.value.entries.fold<double>(0.0, (double s, MapEntry<String, int> inner) {
-          final cnt = inner.value;
-          return s + pricingRepository.calculateTotalPrice(type, cnt);
-        });
-        return sum + innerTotal;
-      });
-
-  void _addToCart() {
-    // Add exactly one of the currently selected sandwich (no quantity selector)
-    final added = 1;
-    setState(() {
-      final toastKey = _isToasted ? 'toasted' : 'untoasted';
-      final inner = _cart[selectedSandwichType] ?? <String, int>{};
-      inner[toastKey] = (inner[toastKey] ?? 0) + added;
-      _cart[selectedSandwichType] = inner;
-    });
-    final message = 'Added $added $selectedSandwichType sandwich (${_isToasted ? "toasted" : "untoasted"}) to cart.';
-    _showConfirmation(message);
-  }
-
-  void _removeOneFromCartPreferringSelectedType() {
-    if (_cartItemsCount() == 0) return;
-    setState(() {
-      final type = selectedSandwichType;
-      final toastKey = _isToasted ? 'toasted' : 'untoasted';
-      // try removing from selected type+toast first
-      if ((_cart[type]?[toastKey] ?? 0) > 0) {
-        _cart[type]![toastKey] = _cart[type]![toastKey]! - 1;
-        if (_cart[type]![toastKey] == 0) _cart[type]!.remove(toastKey);
-        if (_cart[type]!.isEmpty) _cart.remove(type);
-        return;
-      }
-      // otherwise remove from any available entry
-      final outerKey = _cart.keys.first;
-      final innerKey = _cart[outerKey]!.keys.first;
-      _cart[outerKey]![innerKey] = _cart[outerKey]![innerKey]! - 1;
-      if (_cart[outerKey]![innerKey] == 0) _cart[outerKey]!.remove(innerKey);
-      if (_cart[outerKey]!.isEmpty) _cart.remove(outerKey);
-    });
-  }
-
-  // Update to use the top-level ScaffoldMessenger key
-  void _showConfirmation(String message) {
-    _scaffoldMessengerKey.currentState?.showSnackBar(
-      SnackBar(
-        content: Text(message, key: const Key('confirmationMessage')),
-        duration: const Duration(seconds: 2),
-      ),
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      scaffoldMessengerKey: _scaffoldMessengerKey,
+      navigatorKey: _navigatorKey,
+      title: 'Sandwich Shop App',
+      home: const OrderScreen(),
     );
   }
+}
 
-  // navigate to the CartPage route using navigator key (context above MaterialApp)
+// New OrderScreen + state implementing the requested UI and image display
+class OrderScreen extends StatefulWidget {
+  const OrderScreen({super.key});
+
+  @override
+  State<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends State<OrderScreen> {
+  final Cart _cart = Cart();
+  final TextEditingController _notesController = TextEditingController();
+
+  SandwichType _selectedSandwichType = SandwichType.veggieDelight;
+  bool _isFootlong = true;
+  BreadType _selectedBreadType = BreadType.white;
+  int _quantity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _notesController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _addToCart() {
+    if (_quantity > 0) {
+      final Sandwich sandwich = Sandwich(
+        type: _selectedSandwichType,
+        isFootlong: _isFootlong,
+        breadType: _selectedBreadType,
+        isToasted: false,
+      );
+
+      setState(() {
+        _cart.add(sandwich, _quantity); // positional quantity
+      });
+
+      String sizeText = _isFootlong ? 'footlong' : 'six-inch';
+      String confirmationMessage =
+          'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
+
+      // show a SnackBar using the scaffold messenger key
+      _scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(confirmationMessage, key: const Key('confirmationMessage'))),
+      );
+
+      debugPrint(confirmationMessage);
+    }
+  }
+
+  VoidCallback? _getAddToCartCallback() {
+    if (_quantity > 0) {
+      return _addToCart;
+    }
+    return null;
+  }
+
+  List<DropdownMenuEntry<SandwichType>> _buildSandwichTypeEntries() {
+    List<DropdownMenuEntry<SandwichType>> entries = [];
+    for (SandwichType type in SandwichType.values) {
+      Sandwich sandwich =
+          Sandwich(type: type, isFootlong: true, breadType: BreadType.white);
+      DropdownMenuEntry<SandwichType> entry = DropdownMenuEntry<SandwichType>(
+        value: type,
+        label: sandwich.name,
+      );
+      entries.add(entry);
+    }
+    return entries;
+  }
+
+  List<DropdownMenuEntry<BreadType>> _buildBreadTypeEntries() {
+    List<DropdownMenuEntry<BreadType>> entries = [];
+    for (BreadType bread in BreadType.values) {
+      DropdownMenuEntry<BreadType> entry = DropdownMenuEntry<BreadType>(
+        value: bread,
+        label: bread.name,
+      );
+      entries.add(entry);
+    }
+    return entries;
+  }
+
+  String _getCurrentImagePath() {
+    final Sandwich sandwich = Sandwich(
+      type: _selectedSandwichType,
+      isFootlong: _isFootlong,
+      breadType: _selectedBreadType,
+      isToasted: false,
+    );
+    return sandwich.image;
+  }
+
+  void _onSandwichTypeChanged(SandwichType? value) {
+    if (value != null) {
+      setState(() {
+        _selectedSandwichType = value;
+      });
+    }
+  }
+
+  void _onSizeChanged(bool value) {
+    setState(() {
+      _isFootlong = value;
+    });
+  }
+
+  void _onBreadTypeChanged(BreadType? value) {
+    if (value != null) {
+      setState(() {
+        _selectedBreadType = value;
+      });
+    }
+  }
+
+  void _increaseQuantity() {
+    setState(() {
+      _quantity++;
+    });
+  }
+
+  void _decreaseQuantity() {
+    if (_quantity > 0) {
+      setState(() {
+        _quantity--;
+      });
+    }
+  }
+
+  VoidCallback? _getDecreaseCallback() {
+    if (_quantity > 0) {
+      return _decreaseQuantity;
+    }
+    return null;
+  }
+
   void _viewCartPage() {
     _navigatorKey.currentState?.push(MaterialPageRoute<void>(
-      builder: (context) => CartPage(
-        cart: _cart,
-        pricingRepository: pricingRepository,
-      ),
+      builder: (context) => CartPage(cart: _cart),
     ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // attach the scaffoldMessengerKey and navigatorKey so they can be used from AppState
-      scaffoldMessengerKey: _scaffoldMessengerKey,
-      navigatorKey: _navigatorKey,
-      title: 'Sandwich Shop App',
-      home: Scaffold(
-        appBar: AppBar(
-          leading: SizedBox(
-            width: 48,
-            height: 48,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        leading: SizedBox(
+          width: 48,
+          height: 48,
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
           ),
-          title: const Text('Sandwich Counter'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // removed ambiguous selectedQuantity display
-              // ...existing code...
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'Footlong', label: Text('Footlong')),
-                  ButtonSegment(value: 'Six-inch', label: Text('Six-inch')),
-                ],
-                selected: {selectedSandwichType},
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    selectedSandwichType = newSelection.first;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('untoasted', style: TextStyle(fontSize: 16)),
-                  Switch(
-                    key: const Key('toastedSwitch'),
-                    value: _isToasted,
-                    onChanged: (value) {
-                      setState(() => _isToasted = value);
+        title: const Text(
+          'Sandwich Counter',
+          style: heading1,
+        ),
+        actions: [
+          IconButton(
+            key: const Key('viewCartAppBar'),
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: _viewCartPage,
+          ),
+        ],
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 300,
+                  child: Image.asset(
+                    _getCurrentImagePath(),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Text(
+                          'Image not found',
+                          style: normalText,
+                        ),
+                      );
                     },
                   ),
-                  const Text('toasted', style: TextStyle(fontSize: 16)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Permanent cart summary (aggregated)
-              Text(
-                'Cart: ${_cartItemsCount()} items - Total: £${_cartTotal().toStringAsFixed(2)}',
-                key: const Key('cartSummary'),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 8),
-              // action buttons: Add to Cart and View Cart
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  StyledButton(
-                    key: const Key('addToCart'),
-                    text: 'Add to Cart',
-                    isEnabled: true,
-                    onPressed: _addToCart,
-                  ),
-                  const SizedBox(width: 12),
-                  StyledButton(
-                    key: const Key('viewCart'),
-                    text: 'View Cart',
-                    isEnabled: true,
-                    onPressed: _viewCartPage,
-                  ),
-                  const SizedBox(width: 12),
-                  // small convenience: remove single item from cart (prefers selected type)
-                  StyledButton(
-                    key: const Key('removeFromCart'),
-                    text: 'Remove one',
-                    isEnabled: _cartItemsCount() > 0,
-                    onPressed: _removeOneFromCartPreferringSelectedType,
-                  ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 20),
+                DropdownMenu<SandwichType>(
+                  width: double.infinity,
+                  label: const Text('Sandwich Type'),
+                  textStyle: normalText,
+                  initialSelection: _selectedSandwichType,
+                  onSelected: _onSandwichTypeChanged,
+                  dropdownMenuEntries: _buildSandwichTypeEntries(),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Six-inch', style: normalText),
+                    Switch(
+                      value: _isFootlong,
+                      onChanged: _onSizeChanged,
+                    ),
+                    const Text('Footlong', style: normalText),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                DropdownMenu<BreadType>(
+                  width: double.infinity,
+                  label: const Text('Bread Type'),
+                  textStyle: normalText,
+                  initialSelection: _selectedBreadType,
+                  onSelected: _onBreadTypeChanged,
+                  dropdownMenuEntries: _buildBreadTypeEntries(),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Quantity: ', style: normalText),
+                    IconButton(
+                      key: const Key('qtyDecrease'),
+                      onPressed: _getDecreaseCallback(),
+                      icon: const Icon(Icons.remove),
+                    ),
+                    Text('$_quantity', style: heading2),
+                    IconButton(
+                      key: const Key('qtyIncrease'),
+                      onPressed: _increaseQuantity,
+                      icon: const Icon(Icons.add),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                StyledButton(
+                  onPressed: _getAddToCartCallback(),
+                  icon: Icons.add_shopping_cart,
+                  label: 'Add to Cart',
+                  backgroundColor: Colors.green,
+                  key: const Key('addToCart'),
+                ),
+                const SizedBox(height: 12),
+                StyledButton(
+                  onPressed: _viewCartPage,
+                  icon: Icons.remove_red_eye,
+                  label: 'View Cart',
+                  backgroundColor: Colors.blue,
+                  key: const Key('viewCart'),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -192,13 +295,20 @@ class _AppState extends State<App> {
   }
 }
 
+// StyledButton supporting both older and newer parameter shapes
 class StyledButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
+  final String? text; // legacy
+  final String? label; // new
+  final IconData? icon;
+  final Color? backgroundColor;
+  final VoidCallback? onPressed;
   final bool isEnabled;
 
   const StyledButton({
-    required this.text,
+    this.text,
+    this.label,
+    this.icon,
+    this.backgroundColor,
     required this.onPressed,
     this.isEnabled = true,
     super.key,
@@ -206,34 +316,42 @@ class StyledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayText = label ?? text ?? '';
+    final enabled = onPressed != null && isEnabled;
     return ElevatedButton(
-      onPressed: isEnabled ? onPressed : null,
+      onPressed: enabled ? onPressed : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isEnabled ? Colors.red : Colors.grey,
+        backgroundColor: enabled ? (backgroundColor ?? Colors.red) : Colors.grey,
         foregroundColor: Colors.white,
       ),
-      child: Text(text),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(displayText),
+          ],
+        ),
+      ),
     );
   }
 }
 
-// New CartPage: shows cart breakdown including toasted/untoasted and totals
+// CartPage uses Cart.getItems() and Cart.itemTotal(...) to display per-line totals
 class CartPage extends StatelessWidget {
-  final Map<String, Map<String, int>> cart;
-  final PricingRepository pricingRepository;
+  final Cart cart;
 
-  const CartPage({super.key, required this.cart, required this.pricingRepository});
+  const CartPage({super.key, required this.cart});
 
   @override
   Widget build(BuildContext context) {
-    final totalItems = cart.values.fold<int>(0, (a, m) => a + m.values.fold(0, (x, y) => x + y));
-    final totalPrice = cart.entries.fold<double>(0.0, (double sum, MapEntry<String, Map<String, int>> e) {
-      final type = e.key;
-      final inner = e.value.entries.fold<double>(0.0, (double s, MapEntry<String, int> inner) {
-        return s + pricingRepository.calculateTotalPrice(type, inner.value);
-      });
-      return sum + inner;
-    });
+    final totalItems = cart.totalItems();
+    final totalPrice = cart.totalPrice();
+    final items = cart.getItems();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Your Cart')),
@@ -245,26 +363,24 @@ class CartPage extends StatelessWidget {
             Text('Total items: $totalItems', key: const Key('cartPageItems'), style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 12),
             if (cart.isEmpty) const Text('Cart is empty', key: Key('cartPageEmpty')),
-            if (cart.isNotEmpty)
+            if (items.isNotEmpty)
               Expanded(
                 child: ListView(
-                  children: cart.entries.expand((entry) {
-                    final type = entry.key;
-                    return entry.value.entries.map((inner) {
-                      final toastState = inner.key; // "toasted" or "untoasted"
-                      final count = inner.value;
-                      final price = pricingRepository.calculateTotalPrice(type, count);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('$type (${toastState}) x $count'),
-                            Text('£${price.toStringAsFixed(2)}'),
-                          ],
-                        ),
+                  children: items.entries.map((entry) {
+                    final sandwich = entry.key;
+                    final count = entry.value;
+                    final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
+                    final toastState = sandwich.isToasted ? 'toasted' : 'untoasted';
+                    final price = cart.itemTotal(sandwich);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('${sandwich.name} ($sizeLabel, $toastState) x $count'),
+                          Text('£${price.toStringAsFixed(2)}'),
+                        ],
                       );
-                    });
                   }).toList(),
                 ),
               ),

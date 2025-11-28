@@ -11,11 +11,13 @@ class Sandwich {
   final SandwichType type;
   final bool isFootlong;
   final BreadType breadType;
+  final bool isToasted; // new
 
   Sandwich({
     required this.type,
     required this.isFootlong,
     required this.breadType,
+    this.isToasted = false,
   });
 
   String get name {
