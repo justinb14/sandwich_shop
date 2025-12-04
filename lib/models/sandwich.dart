@@ -34,9 +34,16 @@ class Sandwich {
   }
 
   String get image {
-    String typeString = type.name;
-    String sizeString = isFootlong ? 'footlong' : 'six_inch';
-    // Return key without leading 'assets/' so web will request 'assets/images/...' (correct)
-    return 'images/${typeString}_$sizeString.png';
+    // map enum -> snake_case base filename to match assets (e.g. veggie_delight)
+    const typeMap = {
+      SandwichType.veggieDelight: 'veggie_delight',
+      SandwichType.chickenTeriyaki: 'chicken_teriyaki',
+      SandwichType.tunaMelt: 'tuna_melt',
+      SandwichType.meatballMarinara: 'meatball_marinara',
+    };
+    final typeString = typeMap[type]!;
+    final sizeString = isFootlong ? 'footlong' : 'six_inch';
+    // return the full asset key pointing at the file under assets/images/
+    return 'assets/images/${typeString}_$sizeString.png';
   }
 }
