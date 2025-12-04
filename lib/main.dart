@@ -3,6 +3,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
+import 'package:sandwich_shop/views/profile_screen.dart';
 
 // top-level scaffold & navigator keys (used for SnackBar/navigation elsewhere if needed)
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
@@ -25,6 +26,7 @@ class App extends StatelessWidget {
       home: const OrderScreen(),
       routes: {
         '/about': (context) => const AboutScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }
@@ -308,6 +310,13 @@ class _OrderScreenState extends State<OrderScreen> {
                   key: const Key('viewCart'),
                 ),
                 const SizedBox(height: 20),
+                // Add link to profile screen at the bottom
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/profile');
+                  },
+                  child: const Text('Profile / Sign In'),
+                ),
               ],
             ),
           ),

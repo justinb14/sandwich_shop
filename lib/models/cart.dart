@@ -1,74 +1,48 @@
-import '../models/sandwich.dart';
-import '../repositories/pricing_repository.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sandwich_shop/models/sandwich.dart';
+import 'package:sandwich_shop/models/cart_item.dart';
 
-class Cart {
-  // internal maps keyed by a stable string derived from Sandwich properties
-  final Map<String, int> _items = {};
-  final Map<String, Sandwich> _lookup = {};
+class Cart extends ChangeNotifier {
+  final List<CartItem> _items = [];
 
-  String _keyFor(Sandwich s) =>
-      '${s.type.name}_${s.isFootlong ? 'footlong' : 'six_inch'}_${s.breadType.name}_${s.isToasted ? 'toasted' : 'untoasted'}';
+  List<CartItem> get items => List.unmodifiable(_items);
 
-  void add(Sandwich sandwich, [int quantity = 1]) {
-    if (quantity <= 0) return;
-    final key = _keyFor(sandwich);
-    _items[key] = (_items[key] ?? 0) + quantity;
-    _lookup[key] = sandwich;
+  double get totalPrice =>
+      _items.fold(0.0, (sum, item) => sum + item.itemSubtotal);
+
+  int get totalItems =>
+      _items.fold(0, (sum, item) => sum + item.quantity);
+
+  void add(Sandwich sandwich, int quantity) {
+    final index = _items.indexWhere((item) => item.sandwich == sandwich);
+    if (index != -1) {
+      _items[index].quantity += quantity;
+    } else {
+      _items.add(CartItem(sandwich: sandwich, quantity: quantity));
+    }
+    notifyListeners();
   }
 
-  void remove(Sandwich sandwich, [int quantity = 1]) {
-    if (quantity <= 0) return;
-    final key = _keyFor(sandwich);
-    final current = _items[key];
-    if (current == null) return;
-    final remaining = current - quantity;
-    if (remaining > 0) {
-      _items[key] = remaining;
-    } else {
-      _items.remove(key);
-      _lookup.remove(key);
+  void updateItemQuantity(Sandwich sandwich, int newQuantity) {
+    final index = _items.indexWhere((item) => item.sandwich == sandwich);
+    if (index != -1) {
+      if (newQuantity > 0) {
+        _items[index].quantity = newQuantity;
+      } else {
+        _items.removeAt(index);
+      }
+      notifyListeners();
     }
+  }
+
+  void removeItem(Sandwich sandwich) {
+    _items.removeWhere((item) => item.sandwich == sandwich);
+    notifyListeners();
   }
 
   void clear() {
     _items.clear();
-    _lookup.clear();
-  }
-
-  // Number of items (sum of quantities)
-  int totalItems() => _items.values.fold<int>(0, (a, b) => a + b);
-
-  // Returns a map of Sandwich -> quantity for inspection
-  Map<Sandwich, int> getItems() {
-    final result = <Sandwich, int>{};
-    _items.forEach((k, v) {
-      final sandwich = _lookup[k];
-      if (sandwich != null) result[sandwich] = v;
-    });
-    return result;
-  }
-
-  // compute total price using PricingRepository internally
-  double totalPrice() {
-    final repo = PricingRepository();
-    double sum = 0.0;
-    _items.forEach((k, qty) {
-      final sandwich = _lookup[k];
-      if (sandwich == null) return;
-      final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
-      sum += repo.calculateTotalPrice(sizeLabel, qty);
-    });
-    return sum;
-  }
-
-  // New: return total price for a specific Sandwich entry (for display in UI)
-  double itemTotal(Sandwich sandwich) {
-    final key = _keyFor(sandwich);
-    final qty = _items[key] ?? 0;
-    if (qty == 0) return 0.0;
-    final repo = PricingRepository();
-    final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
-    return repo.calculateTotalPrice(sizeLabel, qty);
+    notifyListeners();
   }
 
   bool get isEmpty => _items.isEmpty;

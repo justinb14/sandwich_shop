@@ -162,3 +162,108 @@ AC-3.16
 Grand Total Display
 
 The overall totalPrice of the entire cart is prominently and persistently displayed at the bottom of the CartScreen, updating instantly with every user action.
+
+
+
+Requirements Document: Profile Screen Placeholder
+
+1. Feature Description and Purpose
+
+Feature Name: User Profile (Placeholder) Screen
+Target Users: All customers using the sandwich ordering application.
+
+Description:
+This feature introduces a new, dedicated screen (ProfileScreen) within the application's navigation flow. The screen will act as a foundational element for future user management, allowing users to view and edit personal details (e.g., name, email). For the initial implementation, this screen is a static placeholder that displays input fields and a save button but performs no actual data persistence or API calls. A navigation link will be added to the existing OrderScreen to enable access.
+
+Purpose:
+To establish the basic structure and navigation flow for user account management, preparing the application for future integration with authentication and database services.
+
+2. User Stories
+
+The following user stories describe how users will interact with the new feature:
+
+Story 1: Accessing the Profile Screen
+
+As a customer on the main ordering screen,
+I want to see a clear link to my profile,
+So that I can navigate to the area where I will eventually manage my account details.
+
+Story 2: Viewing Profile Fields
+
+As a customer on the Profile Screen,
+I want to see input fields for common personal information (like Name and Email),
+So that I can understand where my details will be viewed and edited in the future.
+
+Story 3: Interacting with the Save Button
+
+As a customer on the Profile Screen,
+I want to see a "Save Details" button,
+So that I can attempt to save any changes, even if the functionality is not yet live.
+
+3. Acceptance Criteria (AC)
+
+The feature is considered complete when all the following criteria are met:
+
+A. Navigation and Routing
+
+ID
+
+Criterion
+
+Details
+
+AC-3.1
+
+Navigation Link Added
+
+The OrderScreen must contain a clearly visible ElevatedButton or TextButton labeled "View/Edit Profile".
+
+AC-3.2
+
+Navigation Functionality
+
+Tapping the "View/Edit Profile" button successfully pushes the ProfileScreen onto the navigation stack using Navigator.of(context).push.
+
+AC-3.3
+
+Back Navigation
+
+The ProfileScreen must have a standard Flutter AppBar allowing the user to easily return to the OrderScreen (usually via an automatic back arrow).
+
+B. Profile Screen UI (ProfileScreen)
+
+ID
+
+Criterion
+
+Details
+
+AC-3.4
+
+Screen Title
+
+The ProfileScreen must display an AppBar with the title "User Profile".
+
+AC-3.5
+
+Input Field Presence
+
+The screen body must contain at least three distinct input fields (TextFormField or TextField) styled for user input (e.g., Full Name, Email Address, Phone Number).
+
+AC-3.6
+
+Save Button Presence
+
+A prominent ElevatedButton labeled "Save Details" must be present at the bottom of the input fields.
+
+AC-3.7
+
+Non-functional Save
+
+Tapping the "Save Details" button must not cause errors and must only print a simple message to the console (e.g., "Save functionality is a placeholder.")
+
+AC-3.8
+
+Layout and Centering
+
+The content (input fields and button) should be vertically centered and well-spaced using standard Flutter padding and SizedBox widgets for good aesthetics.
