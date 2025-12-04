@@ -35,3 +35,13 @@ General Requirements
 All changes should be reflected immediately in the UI.
 The cart's total price should always be accurate.
 The user should receive feedback (e.g., a snackbar) when an item is removed or updated.
+
+- **Prompt 2**: Add one new screen to your app. This can be a profile or sign-up/sign-in screen where users can enter and/or view their details. For now, you can add a link to this screen at the bottom of your order screen (we will fix this in the next exercise). There’s no need to perform any actual authentication or data persistence yet.
+
+- **Prompt 3**: Let’s enhance our app’s navigation by adding a Drawer menu. A Drawer is a panel that slides in from the edge of a Scaffold to show the app’s main navigation options. You can read more about it in its documentation page.
+
+Ask your AI assistant to explain how Drawer widgets work and how they integrate with the AppBar. Could you make this drawer accessible from all screens in your app? Is there any way to reduce the redundant code that this creates? As an extra challenge, make the navigation of your website responsive (different screen widths should make the navigation look and act differently). (Re)visit exercise 6 from Worksheet 2 for a hint.
+
+Make sure to add this new task to the requirements.md instead of creating a new one. The existing information and completed tasks should technically speed up the implementation of the new feature and make it more consistant.
+
+As always, update your widget tests to cover the new navigation drawer (or generally, navigation) functionality.
