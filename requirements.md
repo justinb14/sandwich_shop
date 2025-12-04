@@ -422,3 +422,11 @@ AC-4.3
 Responsive Layout Test
 
 Tests must be added (using tester.binding.window.physicalSize and tester.binding.window.devicePixelRatio) to verify: 1) On small screens, the drawer icon is present. 2) On large screens, the NavigationRail (or equivalent fixed navigation) is visible and the drawer icon is absent.
+
+## New Requirement: Navigation Drawer & Responsive Navigation
+
+- Add a Drawer widget to the app for main navigation (About, Profile, Order, Cart, etc.).
+- The Drawer should be accessible from all main screens via the AppBar.
+- Refactor navigation code to avoid redundancy (e.g., use a shared widget or mixin for the Drawer).
+- Make navigation responsive: on wide screens, show a navigation rail or sidebar instead of a Drawer.
+- Update widget tests to cover navigation via the Drawer and responsive navigation.

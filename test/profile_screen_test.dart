@@ -24,4 +24,21 @@ void main() {
     await tester.pump(); // Start SnackBar animation
     expect(find.text('Profile saved (not persisted)'), findsOneWidget);
   });
+
+  testWidgets('ProfileScreen navigation drawer opens', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ProfileScreen(),
+      ),
+    );
+    // Open Drawer (on small screens)
+    final ScaffoldState scaffoldState = tester.firstState(find.byType(Scaffold));
+    scaffoldState.openDrawer();
+    await tester.pumpAndSettle();
+    expect(find.text('Sandwich Shop'), findsOneWidget);
+    expect(find.text('Order'), findsOneWidget);
+    expect(find.text('Cart'), findsOneWidget);
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+  });
 }

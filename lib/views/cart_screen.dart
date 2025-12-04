@@ -4,6 +4,7 @@ import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/models/cart_item.dart';
 import 'package:sandwich_shop/views/checkout_screen.dart';
 import 'package:sandwich_shop/widgets/styled_button.dart';
+import 'package:sandwich_shop/views/responsive_scaffold.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -49,7 +50,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<Cart>(
       builder: (context, cart, child) {
-        return Scaffold(
+        return ResponsiveScaffold(
           appBar: AppBar(
             title: const Text('Your Cart'),
           ),
@@ -133,6 +134,7 @@ class CartScreen extends StatelessWidget {
               ],
             ),
           ),
+          currentRoute: '/cart',
         );
       },
     );

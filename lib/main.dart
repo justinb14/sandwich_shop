@@ -4,6 +4,8 @@ import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
+import 'package:sandwich_shop/views/app_drawer.dart';
+import 'package:sandwich_shop/views/responsive_scaffold.dart';
 
 // top-level scaffold & navigator keys (used for SnackBar/navigation elsewhere if needed)
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
@@ -23,10 +25,12 @@ class App extends StatelessWidget {
       scaffoldMessengerKey: _scaffoldMessengerKey,
       navigatorKey: _navigatorKey,
       title: 'Sandwich Shop App',
-      home: const OrderScreen(),
+      initialRoute: '/',
       routes: {
+        '/': (context) => const OrderScreen(),
         '/about': (context) => const AboutScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/cart': (context) => const CartScreen(),
       },
     );
   }
@@ -184,7 +188,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ResponsiveScaffold(
       appBar: AppBar(
         leading: SizedBox(
           width: 48,
@@ -322,6 +326,7 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
       ),
+      currentRoute: '/',
     );
   }
 }
