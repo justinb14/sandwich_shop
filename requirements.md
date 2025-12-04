@@ -267,3 +267,158 @@ AC-3.8
 Layout and Centering
 
 The content (input fields and button) should be vertically centered and well-spaced using standard Flutter padding and SizedBox widgets for good aesthetics.
+
+
+Requirements Document: Sandwich App Features
+
+1. Feature Description and Purpose
+
+(Previous content remains unchanged)
+
+2. User Stories
+
+(Previous content remains unchanged)
+
+3. Acceptance Criteria (AC)
+
+A. Data Model & Logic (Backend)
+
+(AC-3.1 to AC-3.8 remain unchanged)
+
+B. User Interface (Frontend - CartScreen)
+
+(AC-3.9 to AC-3.16 remain unchanged)
+
+C. User Interface (Frontend - ProfileScreen)
+
+(AC-3.1 to AC-3.8 from the previous Profile Screen section are now re-numbered to AC-3.17 to AC-3.24)
+
+ID
+
+Criterion
+
+Details
+
+AC-3.17
+
+Navigation Link Added
+
+The OrderScreen must contain a clearly visible link ("View/Edit Profile") for navigation.
+
+AC-3.18
+
+Navigation Functionality
+
+Tapping the "View/Edit Profile" link successfully pushes the ProfileScreen.
+
+AC-3.19
+
+Back Navigation
+
+The ProfileScreen must have a standard Flutter AppBar allowing the user to return to the previous screen.
+
+AC-3.20
+
+Screen Title
+
+The ProfileScreen must display an AppBar with the title "User Profile".
+
+AC-3.21
+
+Input Field Presence
+
+The screen body must contain at least three distinct input fields (e.g., Full Name, Email Address, Phone Number).
+
+AC-3.22
+
+Save Button Presence
+
+A prominent ElevatedButton labeled "Save Details" must be present.
+
+AC-3.23
+
+Non-functional Save
+
+Tapping the "Save Details" button must print a console message and perform no data operation.
+
+AC-3.24
+
+Layout and Centering
+
+The content should be well-spaced and aesthetically pleasing.
+
+D. Navigation Drawer & Responsiveness
+
+ID
+
+Criterion
+
+Details
+
+AC-3.25
+
+Reusable Drawer Widget
+
+A single, separate AppDrawer widget must be created to contain all navigation links, eliminating code duplication across screens.
+
+AC-3.26
+
+Drawer Links (Functionality)
+
+The AppDrawer must contain navigation links (using ListTiles) for the OrderScreen, CartScreen, and ProfileScreen. Tapping a link must navigate to the target screen and close the drawer.
+
+AC-3.27
+
+Universal Drawer Access
+
+The AppDrawer widget must be accessible (via the drawer property of Scaffold) from the OrderScreen, CartScreen, and ProfileScreen.
+
+AC-3.28
+
+AppBar Icon Integration
+
+The AppBar on each top-level screen must automatically display the hamburger icon to open the drawer on small screens.
+
+AC-3.29
+
+Responsive Navigation (Code structure)
+
+A wrapper widget (e.g., AdaptiveScaffold or similar) must be implemented that uses MediaQuery or LayoutBuilder to determine screen size.
+
+AC-3.30
+
+Responsive Navigation (Small Screens)
+
+For screens smaller than 600 logical pixels, the standard Drawer functionality (AC-3.27) must be used.
+
+AC-3.31
+
+Responsive Navigation (Large Screens)
+
+For screens 600 logical pixels or wider, the Drawer must be disabled, and the navigation links must be displayed permanently as a NavigationRail or fixed column on the left side of the screen body.
+
+4. Widget Testing Updates
+
+ID
+
+Criterion
+
+Details
+
+AC-4.1
+
+Drawer Opening Test
+
+A test must confirm that tapping the menu icon on a top-level screen successfully opens the AppDrawer.
+
+AC-4.2
+
+Drawer Navigation Test
+
+A test must confirm that tapping a navigation link (ListTile) inside the drawer successfully navigates to the target screen (e.g., CartScreen or ProfileScreen) and the drawer closes.
+
+AC-4.3
+
+Responsive Layout Test
+
+Tests must be added (using tester.binding.window.physicalSize and tester.binding.window.devicePixelRatio) to verify: 1) On small screens, the drawer icon is present. 2) On large screens, the NavigationRail (or equivalent fixed navigation) is visible and the drawer icon is absent.
