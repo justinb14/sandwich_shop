@@ -1,14 +1,16 @@
 class PricingRepository {
-  final double sixInchPrice = 7.0;
-  final double footlongPrice = 11.0;
+  // Example price map
+  static const Map<String, double> basePrices = {
+    'footlong': 6.0,
+    'six-inch': 3.5,
+  };
 
-  double calculateTotalPrice(String sandwichType, int quantity) {
-    if (sandwichType == 'Six-inch') {
-      return sixInchPrice * quantity;
-    } else if (sandwichType == 'Footlong') {
-      return footlongPrice * quantity;
-    } else {
-      throw ArgumentError('Invalid sandwich type: $sandwichType');
+  double calculateTotalPrice(String size, int quantity) {
+    // Defensive: ensure size is valid
+    if (!basePrices.containsKey(size)) {
+      throw ArgumentError('Invalid size: $size');
     }
+    final double pricePerItem = basePrices[size]!;
+    return pricePerItem * quantity;
   }
 }

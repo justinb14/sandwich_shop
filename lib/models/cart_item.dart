@@ -8,9 +8,13 @@ class CartItem {
   CartItem({required this.sandwich, required this.quantity});
 
   double get itemSubtotal {
-    return PricingRepository().calculatePrice(
-      quantity: quantity,
-      isFootlong: sandwich.isFootlong,
+    // Fix: Pass the correct type for the first argument (size as String, not bool)
+    // Assuming PricingRepository().calculateTotalPrice(String size, int quantity)
+    // where size is 'footlong' or 'six-inch'
+    final String size = sandwich.isFootlong ? 'footlong' : 'six-inch';
+    return PricingRepository().calculateTotalPrice(
+      size,
+      quantity,
     );
   }
 

@@ -4,8 +4,8 @@ import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
-import 'package:sandwich_shop/views/app_drawer.dart';
 import 'package:sandwich_shop/views/responsive_scaffold.dart';
+import 'package:sandwich_shop/views/cart_screen.dart';
 
 // top-level scaffold & navigator keys (used for SnackBar/navigation elsewhere if needed)
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
@@ -13,7 +13,23 @@ final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  runApp(const App());
+  runApp(CartProvider(child: const App()));
+}
+
+// InheritedWidget to provide Cart to all descendants
+class CartProvider extends InheritedWidget {
+  final Cart cart = Cart();
+
+  CartProvider({required Widget child}) : super(child: child);
+
+  static Cart of(BuildContext context) {
+    final CartProvider? provider = context.dependOnInheritedWidgetOfExactType<CartProvider>();
+    assert(provider != null, 'No CartProvider found in context');
+    return provider!.cart;
+  }
+
+  @override
+  bool updateShouldNotify(CartProvider oldWidget) => false;
 }
 
 class App extends StatelessWidget {
@@ -30,7 +46,14 @@ class App extends StatelessWidget {
         '/': (context) => const OrderScreen(),
         '/about': (context) => const AboutScreen(),
         '/profile': (context) => const ProfileScreen(),
-        '/cart': (context) => const CartScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/cart') {
+          return MaterialPageRoute(
+            builder: (context) => CartScreen(),
+          );
+        }
+        return null;
       },
     );
   }
@@ -45,7 +68,6 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  final Cart _cart = Cart();
   final TextEditingController _notesController = TextEditingController();
 
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
@@ -77,9 +99,8 @@ class _OrderScreenState extends State<OrderScreen> {
         isToasted: _isToasted,
       );
 
-      setState(() {
-        _cart.add(sandwich, _quantity); // positional quantity
-      });
+      // Use shared cart
+      CartProvider.of(context).add(sandwich, _quantity);
 
       String sizeText = _isFootlong ? 'footlong' : 'six-inch';
       String confirmationMessage =
@@ -145,12 +166,6 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-  void _onSizeChanged(bool value) {
-    setState(() {
-      _isFootlong = value;
-    });
-  }
-
   void _onBreadTypeChanged(BreadType? value) {
     if (value != null) {
       setState(() {
@@ -181,9 +196,7 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   void _viewCartPage() {
-    _navigatorKey.currentState?.push(MaterialPageRoute<void>(
-      builder: (context) => CartPage(cart: _cart),
-    ));
+    Navigator.of(context).pushNamed('/cart');
   }
 
   @override
@@ -203,13 +216,6 @@ class _OrderScreenState extends State<OrderScreen> {
           'Sandwich Counter',
           style: heading1,
         ),
-        actions: [
-          IconButton(
-            key: const Key('viewCartAppBar'),
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: _viewCartPage,
-          ),
-        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -385,9 +391,9 @@ class CartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalItems = cart.totalItems();
-    final totalPrice = cart.totalPrice();
-    final items = cart.getItems();
+    final totalItems = cart.totalItems; // FIX: property, not method
+    final totalPrice = cart.totalPrice; // FIX: property, not method
+    final items = cart.items; // FIX: use items getter
 
     return Scaffold(
       appBar: AppBar(title: const Text('Your Cart')),
@@ -402,12 +408,12 @@ class CartPage extends StatelessWidget {
             if (items.isNotEmpty)
               Expanded(
                 child: ListView(
-                  children: items.entries.map((entry) {
-                    final sandwich = entry.key;
-                    final count = entry.value;
+                  children: items.map((item) {
+                    final sandwich = item.sandwich;
+                    final count = item.quantity;
                     final sizeLabel = sandwich.isFootlong ? 'Footlong' : 'Six-inch';
                     final toastState = sandwich.isToasted ? 'toasted' : 'untoasted';
-                    final price = cart.itemTotal(sandwich);
+                    final price = item.itemSubtotal; // FIX: use CartItem getter
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Row(

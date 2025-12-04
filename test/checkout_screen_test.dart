@@ -10,8 +10,24 @@ void main() {
 
     setUp(() {
       cart = Cart();
-      cart.addItem(Sandwich(name: 'Ham', isFootlong: false), 2);
-      cart.addItem(Sandwich(name: 'Turkey', isFootlong: true), 1);
+      cart.add(
+        Sandwich(
+          type: SandwichType.veggieDelight,
+          isFootlong: false,
+          breadType: BreadType.white,
+          isToasted: false,
+        ),
+        2,
+      );
+      cart.add(
+        Sandwich(
+          type: SandwichType.turkey,
+          isFootlong: true,
+          breadType: BreadType.wheat,
+          isToasted: true,
+        ),
+        1,
+      );
     });
 
     testWidgets('renders order summary and total', (WidgetTester tester) async {
@@ -22,7 +38,7 @@ void main() {
       );
 
       expect(find.text('Order Summary'), findsOneWidget);
-      expect(find.textContaining('Ham'), findsOneWidget);
+      expect(find.textContaining('Veggie Delight'), findsOneWidget);
       expect(find.textContaining('Turkey'), findsOneWidget);
       expect(find.text('Total:'), findsOneWidget);
       expect(find.textContaining('£'), findsWidgets);

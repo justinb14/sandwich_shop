@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
-import 'package:sandwich_shop/models/sandwich.dart';
-import 'package:sandwich_shop/repositories/pricing_repository.dart';
-
-
+import 'package:sandwich_shop/models/cart_item.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Cart cart;
@@ -33,21 +30,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final Map orderConfirmation = {
       'orderId': orderId,
       'totalAmount': widget.cart.totalPrice,
-      'itemCount': widget.cart.countOfItems,
+      'itemCount': widget.cart.totalItems,
       'estimatedTime': '15-20 minutes',
     };
 
-    // Check if this State object is being shown in the widget tree
     if (mounted) {
-      // Pop the checkout screen and return to the order screen with the confirmation
       Navigator.pop(context, orderConfirmation);
     }
   }
 
-  double _calculateItemPrice(Sandwich sandwich, int quantity) {
-    PricingRepository repo = PricingRepository();
-    return repo.calculatePrice(
-        quantity: quantity, isFootlong: sandwich.isFootlong);
+  double _calculateItemPrice(CartItem item) {
+    // Use the CartItem's subtotal getter
+    return item.itemSubtotal;
   }
 
   @override
@@ -57,10 +51,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     columnChildren.add(const Text('Order Summary', style: heading2));
     columnChildren.add(const SizedBox(height: 20));
 
-    for (MapEntry<Sandwich, int> entry in widget.cart.items.entries) {
-      final Sandwich sandwich = entry.key;
-      final int quantity = entry.value;
-      final double itemPrice = _calculateItemPrice(sandwich, quantity);
+    for (CartItem item in widget.cart.items) {
+      final sandwich = item.sandwich;
+      final int quantity = item.quantity;
+      final double itemPrice = _calculateItemPrice(item);
 
       final Widget itemRow = Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
