@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
+import 'package:sandwich_shop/views/about_screen.dart';
 
 // top-level scaffold & navigator keys (used for SnackBar/navigation elsewhere if needed)
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
@@ -22,6 +23,9 @@ class App extends StatelessWidget {
       navigatorKey: _navigatorKey,
       title: 'Sandwich Shop App',
       home: const OrderScreen(),
+      routes: {
+        '/about': (context) => const AboutScreen(),
+      },
     );
   }
 }
