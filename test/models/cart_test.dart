@@ -24,17 +24,17 @@ void main() {
     );
 
     // add one footlong veggie and two six-inch tuna
-    cart.add(footlongVeggie);
+    cart.add(footlongVeggie, 1);
     cart.add(sixInchTuna, 2);
 
-    expect(cart.totalItems(), 3);
+    expect(cart.totalItems, 3);
 
     final expected = repo.calculateTotalPrice('Footlong', 1) +
         repo.calculateTotalPrice('Six-inch', 2);
 
-    expect(cart.totalPrice(), closeTo(expected, 0.001));
+    expect(cart.totalPrice, closeTo(expected, 0.001));
 
-    final items = cart.getItems();
+    final items = cart.items;
     expect(items[footlongVeggie], 1);
     expect(items[sixInchTuna], 2);
   });
@@ -51,18 +51,18 @@ void main() {
 
     // add two then remove one
     cart.add(footlongVeggie, 2);
-    expect(cart.totalItems(), 2);
+    expect(cart.totalItems, 2);
 
     cart.remove(footlongVeggie);
-    expect(cart.totalItems(), 1);
-    expect(cart.getItems()[footlongVeggie], 1);
+    expect(cart.totalItems, 1);
+    expect(cart.items[footlongVeggie], 1);
 
     final expected = repo.calculateTotalPrice('Footlong', 1);
-    expect(cart.totalPrice(), closeTo(expected, 0.001));
+    expect(cart.totalPrice, closeTo(expected, 0.001));
 
     // remove remaining
     cart.remove(footlongVeggie);
     expect(cart.isEmpty, isTrue);
-    expect(cart.totalPrice(), closeTo(0.0, 0.001));
+    expect(cart.totalPrice, closeTo(0.0, 0.001));
   });
 }

@@ -5,7 +5,7 @@ import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 
 void main() {
-  testWidgets('Drawer opens and contains navigation links', (WidgetTester tester) async {
+    testWidgets('Drawer opens and contains navigation links', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
 
     // Open the Drawer
@@ -27,7 +27,7 @@ void main() {
         routes: {
           '/': (context) => const ProfileScreen(),
           '/about': (context) => const AboutScreen(),
-          '/cart': (context) => CartScreen(),
+          '/cart': (context) => const CartScreen(),
         },
         initialRoute: '/',
       ),

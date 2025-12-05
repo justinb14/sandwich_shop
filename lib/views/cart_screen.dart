@@ -6,7 +6,7 @@ import 'package:sandwich_shop/views/responsive_scaffold.dart';
 import '../main.dart'; // For CartProvider
 
 class CartScreen extends StatefulWidget {
-  CartScreen({Key? key}) : super(key: key);
+  const CartScreen({Key? key}) : super(key: key);
 
   @override
   State<CartScreen> createState() => _CartScreenState();

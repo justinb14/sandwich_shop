@@ -21,7 +21,7 @@ void main() {
       );
       cart.add(
         Sandwich(
-          type: SandwichType.turkey,
+          type: SandwichType.chicken, // Replace with an existing constant
           isFootlong: true,
           breadType: BreadType.wheat,
           isToasted: true,

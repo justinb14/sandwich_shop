@@ -20,7 +20,7 @@ void main() {
 class CartProvider extends InheritedWidget {
   final Cart cart = Cart();
 
-  CartProvider({required Widget child}) : super(child: child);
+  CartProvider({super.key, required Widget child}) : super(child: child);
 
   static Cart of(BuildContext context) {
     final CartProvider? provider = context.dependOnInheritedWidgetOfExactType<CartProvider>();
@@ -50,7 +50,7 @@ class App extends StatelessWidget {
       onGenerateRoute: (settings) {
         if (settings.name == '/cart') {
           return MaterialPageRoute(
-            builder: (context) => CartScreen(),
+            builder: (context) => const CartScreen(),
           );
         }
         return null;
